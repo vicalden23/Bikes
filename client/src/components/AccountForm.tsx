@@ -16,15 +16,19 @@ function AccountForm({
   setManagers,
   isCreate,
   setUserId,
+  setUser,
   setPage,
+  user,
   userId,
   setOpenDialog,
 }: {
   setManagers?: React.Dispatch<React.SetStateAction<User[]>>;
   setCustomers?: React.Dispatch<React.SetStateAction<User[]>>;
   setUserId?: React.Dispatch<React.SetStateAction<number | undefined>>;
+  setUser?: React.Dispatch<React.SetStateAction<User | undefined>>;
   setPage?: React.Dispatch<React.SetStateAction<string>>;
   isCreate?: boolean;
+  user?: User;
   userId?: number;
   setOpenDialog?: React.Dispatch<React.SetStateAction<boolean>>;
 }) {
@@ -86,13 +90,14 @@ function AccountForm({
                     setManagers,
                     setPage,
                     userData,
-                    setUserId,
+                    setUser,
                   })
               : () =>
                   handleUpdateUser({
                     setCustomers,
                     setManagers,
                     setUserId,
+                    user,
                     userId,
                     userData,
                     setOpenDialog,

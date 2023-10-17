@@ -23,10 +23,12 @@ const BootstrapDialog = styled(Dialog)(() => ({
 
 function UserList({
   users,
+  user,
   setCustomers,
   setManagers,
 }: {
   users: User[];
+  user?: User;
   setCustomers: React.Dispatch<React.SetStateAction<User[]>>;
   setManagers: React.Dispatch<React.SetStateAction<User[]>>;
 }) {
@@ -45,6 +47,7 @@ function UserList({
           setCustomers={setCustomers}
           setManagers={setManagers}
           setUserId={setUserId}
+          user={user}
           userId={userId}
           setOpenDialog={setOpenDialog}
         />
@@ -61,27 +64,28 @@ function UserList({
             </TableRow>
           </TableHead>
           <TableBody>
-            {users.map((user) => (
+            {users.map((u) => (
               <TableRow
-                key={user.username}
+                key={u.username}
                 sx={{ '&:last-child td, &:last-child th': { border: 0 } }}
               >
                 <TableCell component="th" scope="row">
-                  {user.id}
+                  {u.id}
                 </TableCell>
-                <TableCell align="right">{user.username}</TableCell>
-                <TableCell align="right">{user.fullName}</TableCell>
+                <TableCell align="right">{u.username}</TableCell>
+                <TableCell align="right">{u.fullName}</TableCell>
                 <TableCell align="center">
-                  <Button onClick={() => handleEditUser(user.id)}>edit</Button>
+                  <Button onClick={() => handleEditUser(u.id)}>edit</Button>
                 </TableCell>
                 <TableCell align="center">
                   <Button
                     onClick={() =>
                       handleRemoveUser({
-                        userId: user.id,
+                        userId: u.id,
                         setCustomers,
                         setManagers,
-                        role: user.role,
+                        role: u.role,
+                        user,
                       })
                     }
                   >

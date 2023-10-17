@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { TextField, Button, Stack, styled } from '@mui/material';
 
-import { Bike, handleCreateBike, handleUpdateBike } from '../requests';
+import { Bike, User, handleCreateBike, handleUpdateBike } from '../requests';
 
 const inputStyles = {
   maxWidth: '300px',
@@ -22,6 +22,7 @@ function BikeForm({
   editBikeId,
   buttonText,
   setOpenDialog,
+  user,
 }: {
   setBikes: React.Dispatch<React.SetStateAction<Bike[]>>;
   setEditBikeId?: React.Dispatch<React.SetStateAction<number | undefined>>;
@@ -29,6 +30,7 @@ function BikeForm({
   editBikeId?: number;
   buttonText?: string;
   setOpenDialog?: React.Dispatch<React.SetStateAction<boolean>>;
+  user?: User;
 }) {
   const [bikeData, setBikeData] = useState<{
     [key: string]: any;
@@ -75,8 +77,9 @@ function BikeForm({
                 setEditBikeId,
                 bikeId: editBikeId,
                 setOpenDialog,
+                user,
               })
-            : handleCreateBike({ setBikes, bikeData })
+            : handleCreateBike({ setBikes, bikeData, user })
         }
       >
         {buttonText ?? 'submit'}

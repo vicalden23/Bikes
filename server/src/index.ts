@@ -1,5 +1,6 @@
 import cors from 'cors';
 import bodyParser from 'body-parser';
+import bcrypt from 'bcryptjs';
 
 import { AppDataSource } from './data-source';
 import { User } from './entity/User';
@@ -9,6 +10,7 @@ import { BikesUsers } from './entity/BikesUsers';
 import routes from '../api/routes';
 import bikeRoutes from '../api/bikeRoutes';
 import userRoutes from '../api/userRoutes';
+import auth from '../api/middleware';
 
 const express = require('express');
 
@@ -20,7 +22,7 @@ app.use(bodyParser.urlencoded({ extended: false }));
 // parse application/json
 app.use(bodyParser.json());
 
-app.use('/', routes, bikeRoutes, userRoutes);
+app.use('/', routes, auth, bikeRoutes, userRoutes);
 
 app.listen(8080);
 console.log('app listening on port 8080');
@@ -75,19 +77,23 @@ AppDataSource.initialize()
     const usersExist = await AppDataSource.manager.find(User);
 
     if (!usersExist || !usersExist.length) {
+      const password = 'password';
+      const encryptedPassword = await bcrypt.hash(password, 10);
+
       console.log('Inserting a new user into the database...');
       const manager = new User();
       manager.fullName = 'Jimmy John';
       manager.role = 'manager';
       manager.username = 'manager';
-      manager.password = 'password';
+      manager.password = encryptedPassword;
       await AppDataSource.manager.save(manager);
 
       const customer = new User();
       customer.fullName = 'Mister Bob';
       customer.role = 'customer';
       customer.username = 'customer';
-      customer.password = 'password';
+
+      customer.password = encryptedPassword;
       await AppDataSource.manager.save(customer);
 
       console.log('Inserting new bikes into the database...');

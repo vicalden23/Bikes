@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from 'react';
 import {
-  Paper,
   TableContainer,
   Table,
   TableHead,
@@ -27,7 +26,7 @@ import AccountForm from './AccountForm';
 import BikeForm from './BikeForm';
 import UserList from './UserList';
 
-function Manager() {
+function Manager({ user }: { user?: User }) {
   const [bikes, setBikes] = useState<Bike[]>([]);
   const [managers, setManagers] = useState<User[]>([]);
   const [customers, setCustomers] = useState<User[]>([]);
@@ -38,8 +37,6 @@ function Manager() {
     []
   );
 
-  console.log({ bikeReservations });
-
   useEffect(() => {
     handleGetManagerPageData({
       setBikes,
@@ -47,20 +44,21 @@ function Manager() {
       setCustomers,
       setUserReservations,
       setBikeReservations,
+      user,
     });
-  }, []);
+  }, [user]);
 
   return (
     <div>
       <Grid container spacing={4}>
         <Grid item xs={8}>
           <h3 style={{ textAlign: 'left' }}>Bikes</h3>
-          <BikeList bikes={bikes} setBikes={setBikes} />
+          <BikeList bikes={bikes} setBikes={setBikes} user={user} />
         </Grid>
 
         <Grid item xs={4}>
           <h3 style={{ textAlign: 'left' }}>Create Bike</h3>
-          <BikeForm setBikes={setBikes} />
+          <BikeForm setBikes={setBikes} user={user} />
         </Grid>
       </Grid>
 
@@ -69,6 +67,7 @@ function Manager() {
         users={customers}
         setCustomers={setCustomers}
         setManagers={setManagers}
+        user={user}
       />
 
       <h3 style={{ textAlign: 'left' }}>Managers</h3>
@@ -76,6 +75,7 @@ function Manager() {
         users={managers}
         setCustomers={setCustomers}
         setManagers={setManagers}
+        user={user}
       />
 
       <h3>Create Account</h3>
@@ -142,7 +142,7 @@ function Manager() {
           <Accordion>
             <AccordionSummary expandIcon={<ExpandMoreIcon />}>
               <Typography>
-                {res.color}, {res.model}
+                {res.model}, {res.color}
               </Typography>
             </AccordionSummary>
             <AccordionDetails>

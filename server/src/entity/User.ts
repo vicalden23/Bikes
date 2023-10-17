@@ -11,6 +11,9 @@ export class User {
   @Column()
   role: string;
 
+  @Column({ nullable: true })
+  token: string;
+
   @Column()
   @Index({ unique: true })
   username: string;

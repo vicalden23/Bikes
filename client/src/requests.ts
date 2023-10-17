@@ -13,6 +13,7 @@ export type User = {
   id: number;
   username: string;
   fullName: string;
+  token: string;
   role: string;
 };
 
@@ -45,6 +46,8 @@ type RequestProps = {
   setUserId?: React.Dispatch<React.SetStateAction<number | undefined>>;
   setPage?: React.Dispatch<React.SetStateAction<string>>;
   setOpenDialog?: React.Dispatch<React.SetStateAction<boolean>>;
+  setUser?: React.Dispatch<React.SetStateAction<User | undefined>>;
+  user?: User;
   bikeData?: { [key: string]: any };
   bikeId?: number;
   userData?: { [key: string]: any };
@@ -61,8 +64,11 @@ export const handleGetManagerPageData = async ({
   setCustomers,
   setUserReservations,
   setBikeReservations,
+  user,
 }: RequestProps) => {
-  const res = await fetch('http://localhost:8080/manager-page');
+  const res = await fetch('http://localhost:8080/manager-page', {
+    headers: { 'x-access-token': user?.token ?? '' },
+  });
   const data = await res.json();
 
   if (setBikes) setBikes(data.bikes);
@@ -72,8 +78,10 @@ export const handleGetManagerPageData = async ({
   if (setBikeReservations) setBikeReservations(data.bikeReservations);
 };
 
-export const handleGetBikes = async ({ setBikes }: RequestProps) => {
-  const res = await fetch('http://localhost:8080/bikes');
+export const handleGetBikes = async ({ setBikes, user }: RequestProps) => {
+  const res = await fetch('http://localhost:8080/bikes', {
+    headers: { 'x-access-token': user?.token ?? '' },
+  });
   const data = await res.json();
   if (setBikes) setBikes(data.bikes);
 };
@@ -81,6 +89,7 @@ export const handleGetBikes = async ({ setBikes }: RequestProps) => {
 export const handleCreateBike = async ({
   setBikes,
   bikeData,
+  user,
 }: RequestProps) => {
   if (!bikeData?.color || !bikeData?.location || !bikeData?.model) {
     alert('Please fill out all bike data');
@@ -90,6 +99,7 @@ export const handleCreateBike = async ({
       body: JSON.stringify(bikeData),
       headers: {
         'Content-type': 'application/json; charset=UTF-8',
+        'x-access-token': user?.token ?? '',
       },
     });
 
@@ -104,12 +114,14 @@ export const handleUpdateBike = async ({
   setEditBikeId,
   bikeId,
   setOpenDialog,
+  user,
 }: RequestProps) => {
   const res = await fetch('http://localhost:8080/bikes', {
     method: 'PUT',
     body: JSON.stringify({ ...bikeData, id: bikeId }),
     headers: {
       'Content-type': 'application/json; charset=UTF-8',
+      'x-access-token': user?.token ?? '',
     },
   });
   const data = await res.json();
@@ -118,12 +130,17 @@ export const handleUpdateBike = async ({
   if (setOpenDialog) setOpenDialog(false);
 };
 
-export const handleRemoveBike = async ({ setBikes, bikeId }: RequestProps) => {
+export const handleRemoveBike = async ({
+  setBikes,
+  bikeId,
+  user,
+}: RequestProps) => {
   const res = await fetch('http://localhost:8080/bikes', {
     method: 'PUT',
     body: JSON.stringify({ remove: true, id: bikeId }),
     headers: {
       'Content-type': 'application/json; charset=UTF-8',
+      'x-access-token': user?.token ?? '',
     },
   });
 
@@ -143,6 +160,7 @@ export const handleCreateUser = async ({
   setPage,
   userData,
   setUserId,
+  setUser,
 }: RequestProps) => {
   if (
     !userData?.fullName ||
@@ -168,6 +186,7 @@ export const handleCreateUser = async ({
       if (setManagers) setManagers(managers);
       if (setCustomers) setCustomers(customers);
       if (setUserId) setUserId(user.id);
+      if (setUser) setUser(user);
       if (setPage) setPage(`${user.role}`);
     }
   }
@@ -178,6 +197,7 @@ export const handleUpdateUser = async ({
   setManagers,
   setUserId,
   userId,
+  user,
   userData,
   setOpenDialog,
 }: RequestProps) => {
@@ -186,6 +206,7 @@ export const handleUpdateUser = async ({
     body: JSON.stringify({ ...userData, id: userId }),
     headers: {
       'Content-type': 'application/json; charset=UTF-8',
+      'x-access-token': user?.token ?? '',
     },
   });
   const { managers, customers } = await res.json();
@@ -200,12 +221,14 @@ export const handleRemoveUser = async ({
   setManagers,
   userId,
   role,
+  user,
 }: RequestProps) => {
   const res = await fetch('http://localhost:8080/users', {
     method: 'PUT',
     body: JSON.stringify({ remove: true, id: userId }),
     headers: {
       'Content-type': 'application/json; charset=UTF-8',
+      'x-access-token': user?.token ?? '',
     },
   });
 
@@ -215,27 +238,32 @@ export const handleRemoveUser = async ({
 };
 
 export const handleGetUserReservations = async ({
-  userId,
   setReservations,
+  user,
 }: RequestProps) => {
-  const res = await fetch(`http://localhost:8080/users/${userId}`);
+  const res = await fetch(`http://localhost:8080/users/${user?.id}`, {
+    headers: {
+      'x-access-token': user?.token ?? '',
+    },
+  });
 
   const { reservations } = await res.json();
   if (setReservations) setReservations(reservations);
 };
 
 export const handleReserveBike = async ({
-  userId,
   bikeId,
   date,
   setBikes,
   setReservations,
+  user,
 }: RequestProps) => {
   const res = await fetch('http://localhost:8080/bikes/reserve', {
     method: 'POST',
-    body: JSON.stringify({ userId, bikeId, date }),
+    body: JSON.stringify({ userId: user?.id, bikeId, date }),
     headers: {
       'Content-type': 'application/json; charset=UTF-8',
+      'x-access-token': user?.token ?? '',
     },
   });
 
@@ -246,16 +274,17 @@ export const handleReserveBike = async ({
 };
 
 export const handleCancelReservation = async ({
-  userId,
+  user,
   reservationId,
   setReservations,
   setBikes,
 }: RequestProps) => {
   const res = await fetch('http://localhost:8080/users/reservations', {
     method: 'DELETE',
-    body: JSON.stringify({ userId, reservationId }),
+    body: JSON.stringify({ userId: user?.id, reservationId }),
     headers: {
       'Content-type': 'application/json; charset=UTF-8',
+      'x-access-token': user?.token ?? '',
     },
   });
 
@@ -266,7 +295,7 @@ export const handleCancelReservation = async ({
 };
 
 export const handleRateBike = async ({
-  userId,
+  user,
   reservationId,
   setReservations,
   setBikes,
@@ -275,9 +304,10 @@ export const handleRateBike = async ({
 }: RequestProps) => {
   const res = await fetch('http://localhost:8080/bikes/rate', {
     method: 'POST',
-    body: JSON.stringify({ userId, reservationId, rate, bikeId }),
+    body: JSON.stringify({ userId: user?.id, reservationId, rate, bikeId }),
     headers: {
       'Content-type': 'application/json; charset=UTF-8',
+      'x-access-token': user?.token ?? '',
     },
   });
 

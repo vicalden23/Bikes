@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { TextField, Button, Stack, styled } from '@mui/material';
 import AccountForm from './AccountForm';
+import { User } from '../requests';
 
 export const inputStyles = {
   maxWidth: '400px',
@@ -15,10 +16,10 @@ export const Container = styled('div')({
 
 function Login({
   setPage,
-  setUserId,
+  setUser,
 }: {
   setPage: React.Dispatch<React.SetStateAction<string>>;
-  setUserId: React.Dispatch<React.SetStateAction<number | undefined>>;
+  setUser: React.Dispatch<React.SetStateAction<User | undefined>>;
 }) {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
@@ -37,12 +38,15 @@ function Login({
 
     const data = await res.json();
 
-    if (data.user.role === 'manager') {
+    if (data.error) {
+      alert('incorrect username or password');
+    } else if (data.user?.role === 'manager') {
       setPage('manager');
     } else {
       setPage('customer');
     }
-    setUserId(data.user.id);
+
+    setUser(data?.user);
   };
 
   return (
@@ -71,7 +75,7 @@ function Login({
       </Stack>
       <h4 style={{ textAlign: 'center', marginTop: '50px' }}>OR</h4>
       <h5 style={{ textAlign: 'left' }}>Create Account</h5>
-      <AccountForm setUserId={setUserId} setPage={setPage} isCreate />
+      <AccountForm setUser={setUser} setPage={setPage} isCreate />
     </Container>
   );
 }

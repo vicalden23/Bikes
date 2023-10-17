@@ -3,7 +3,12 @@ var router = express.Router();
 import { AppDataSource } from '../src/data-source';
 import { BikesUsers } from '../src/entity/BikesUsers';
 import { User } from '../src/entity/User';
-import { getUserReservations, getAllBikes } from './helpers';
+import {
+  getUserReservations,
+  getAllBikes,
+  getUsersReservations,
+  getBikesReservations,
+} from './helpers';
 
 const userRepo = AppDataSource.getRepository(User);
 const bikesUsers = AppDataSource.getRepository(BikesUsers);
@@ -12,6 +17,16 @@ router.get('/users', async (req, res) => {
   const users = await userRepo.find();
 
   res.send({ users });
+});
+
+router.get('/manager-page', async (req, res) => {
+  const bikes = await getAllBikes();
+  const managers = await userRepo.find({ where: { role: 'manager' } });
+  const customers = await userRepo.find({ where: { role: 'customer' } });
+  const userReservations = await getUsersReservations();
+  const bikeReservations = await getBikesReservations();
+
+  res.send({ bikes, managers, customers, userReservations, bikeReservations });
 });
 
 router.put('/users', async (req, res) => {
@@ -27,29 +42,6 @@ router.put('/users', async (req, res) => {
   const customers = await userRepo.find({ where: { role: 'customer' } });
 
   res.send({ managers, customers });
-});
-
-router.post('/users', async (req, res) => {
-  const { fullName, role, username, password } = req.body;
-
-  const usernameExists = await userRepo.findOne({ where: { username } });
-  if (usernameExists && usernameExists.id) {
-    res
-      .status(500)
-      .send({ error: 'The username you have provided is already in use.' });
-  } else {
-    const createdUser = await userRepo.create({
-      fullName,
-      role,
-      username,
-      password,
-    });
-    await userRepo.save(createdUser);
-    const user = await userRepo.findOne({ where: { role, username } });
-    const managers = await userRepo.find({ where: { role: 'manager' } });
-    const customers = await userRepo.find({ where: { role: 'customer' } });
-    res.send({ managers, customers, user });
-  }
 });
 
 router.delete('/users/reservations', async (req, res) => {

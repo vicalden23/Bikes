@@ -15,6 +15,7 @@ import {
 import {
   Bike,
   Reservations,
+  User,
   handleRemoveBike,
   handleReserveBike,
 } from '../requests';
@@ -31,13 +32,13 @@ function BikeList({
   setBikes,
   setReservations,
   hideEdit,
-  userId,
+  user,
 }: {
   bikes: Bike[];
   setBikes: React.Dispatch<React.SetStateAction<Bike[]>>;
   setReservations?: React.Dispatch<React.SetStateAction<Reservations[]>>;
   hideEdit?: boolean;
-  userId?: number;
+  user?: User;
 }) {
   const [editBikeId, setEditBikeId] = useState<number>();
   const [openDialog, setOpenDialog] = useState(false);
@@ -49,13 +50,14 @@ function BikeList({
 
   const getReserveBikeButton = (date: string, bikeId: number) => {
     return (
-      <button
+      <Button
+        style={{ marginTop: 7 }}
         onClick={() =>
-          handleReserveBike({ userId, date, bikeId, setBikes, setReservations })
+          handleReserveBike({ user, date, bikeId, setBikes, setReservations })
         }
       >
         {date}
-      </button>
+      </Button>
     );
   };
 
@@ -97,6 +99,7 @@ function BikeList({
           isUpdate
           editBikeId={editBikeId}
           setOpenDialog={setOpenDialog}
+          user={user}
         />
       </BootstrapDialog>
       <TableContainer component={Paper} style={{ maxHeight: '400px' }}>
@@ -108,11 +111,13 @@ function BikeList({
               <TableCell align="right">Color</TableCell>
               <TableCell align="right">Location</TableCell>
               <TableCell align="right">Rating</TableCell>
-              {!hideEdit && (
+              {!hideEdit ? (
                 <>
                   <TableCell align="center">Edit</TableCell>
                   <TableCell align="center">Remove</TableCell>
                 </>
+              ) : (
+                <TableCell align="center">Availability</TableCell>
               )}
             </TableRow>
           </TableHead>
@@ -142,7 +147,7 @@ function BikeList({
                     <TableCell align="center">
                       <Button
                         onClick={() =>
-                          handleRemoveBike({ bikeId: bike.id, setBikes })
+                          handleRemoveBike({ bikeId: bike.id, setBikes, user })
                         }
                       >
                         delete

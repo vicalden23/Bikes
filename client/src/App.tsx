@@ -3,11 +3,11 @@ import { Container, Button } from '@mui/material';
 import Login from './components/Login';
 import Manager from './components/Manager';
 import Customer from './components/Customer';
-import './App.css';
+import { User } from './requests';
 
 function App() {
-  const [page, setPage] = useState('manager');
-  const [userId, setUserId] = useState<number>();
+  const [page, setPage] = useState('login');
+  const [user, setUser] = useState<User>();
 
   return (
     <Container style={{ textAlign: 'center' }}>
@@ -16,9 +16,9 @@ function App() {
           <Button onClick={() => setPage('login')}>logout</Button>
         </div>
       )}
-      {page === 'login' && <Login setPage={setPage} setUserId={setUserId} />}
-      {page === 'manager' && <Manager />}
-      {page === 'customer' && <Customer userId={userId} />}
+      {page === 'login' && <Login setPage={setPage} setUser={setUser} />}
+      {page === 'manager' && <Manager user={user} />}
+      {page === 'customer' && <Customer user={user} />}
     </Container>
   );
 }
